@@ -32,6 +32,12 @@ public class MotorPhPayrollApp {
     private static final int MAX_YEAR_MONTH_PAIRS = 512;
 
     public static void main(String[] args) {
+        // Launch the visual GUI
+        MotorPhGUI loginScreen = new MotorPhGUI();
+        loginScreen.setVisible(true);
+        
+        
+        
         String empFile = "resources/MotorPH_Employee Data - Employee Details.csv";
         String attFile = "resources/MotorPH_Employee Data - Attendance Record.csv";
 
