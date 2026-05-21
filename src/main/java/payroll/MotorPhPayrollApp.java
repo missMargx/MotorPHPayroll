@@ -16,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
+//commit 1
 /**
  * MotorPH payroll — single-file, procedural style (no domain classes).
  * Reads employee and attendance data from CSV only; does not modify those files.
