@@ -405,97 +405,49 @@ public class MotorPhPayrollApp {
                 secondHalf);
 
         if (pairCount == 0) {
-
             System.out.println();
-            System.out.println("No attendance records found for employee " + empNo);
+            System.out.println("No attendance records found for employee " + empNo + " (June–December).");
             return;
         }
 
-        sortYearMonthPairs(
-                pairYears,
-                pairMonths,
-                firstHalf,
-                secondHalf,
-                pairCount);
+        sortYearMonthPairs(pairYears, pairMonths, firstHalf, secondHalf, pairCount);
 
         for (int p = 0; p < pairCount; p++) {
-
             int yr = pairYears[p];
             int mon = pairMonths[p];
-
             double fh = firstHalf[p];
             double sh = secondHalf[p];
-
-            String monthName =
-                    (mon >= 1 && mon <= 12)
-                            ? MONTHS_NAMES[mon]
-                            : ("Month " + mon);
+            String monthName = (mon >= 1 && mon <= 12) ? MONTHS_NAMES[mon] : ("Month " + mon);
 
             double grossFirst = fh * hourlyRate;
             double grossSecond = sh * hourlyRate;
-
             double monthlyGross = grossFirst + grossSecond;
-
             double[] ded = computeMonthlyDeductions(monthlyGross);
-
-            double totalDeductions =
-                    ded[0] + ded[1] + ded[2] + ded[3];
-
-            // All monthly deductions are applied during second cutoff
+            double totalDeductions = ded[0] + ded[1] + ded[2] + ded[3];
             double netFirst = grossFirst;
             double netSecond = grossSecond - totalDeductions;
 
             int daysInMonth = YearMonth.of(yr, mon).lengthOfMonth();
+            System.out.println();
+            System.out.println("Employee # : " + empNo);
+            System.out.println("Employee Name : " + lastName + ", " + firstName);
+            System.out.println("Birthday : " + birthday);
+            System.out.println(monthName + " " + yr + " - Cutoff Date: 1 to 15");
+            System.out.println("Total Hours Worked : " + plainDouble(fh));
+            System.out.println("Gross Salary: " + plainDoubleWithGrouping(grossFirst));
+            System.out.println("Net Salary: " + plainDoubleWithGrouping(netFirst));
 
             System.out.println();
-            System.out.println("==================================================");
-            System.out.println("PAYROLL REPORT");
-            System.out.println("==================================================");
-
-            System.out.println("Employee Number : " + empNo);
-            System.out.println("Employee Name   : " + lastName + ", " + firstName);
-            System.out.println("Birthday        : " + birthday);
-
-            System.out.println("\nFIRST CUTOFF");
-            System.out.println(monthName + " " + yr + " (1 - 15)");
-
-            System.out.println("Hours Worked    : " + plainDouble(fh));
-            System.out.println("Gross Salary    : ₱" +
-                    String.format("%,.2f", grossFirst));
-
-            System.out.println("Net Salary      : ₱" +
-                    String.format("%,.2f", netFirst));
-
-            System.out.println("\nSECOND CUTOFF");
-            System.out.println(monthName + " " + yr +
-                    " (16 - " + daysInMonth + ")");
-
-            System.out.println("Hours Worked    : " + plainDouble(sh));
-
-            System.out.println("Gross Salary    : ₱" +
-                    String.format("%,.2f", grossSecond));
-
-            System.out.println("\nDEDUCTIONS");
-
-            System.out.println("SSS             : ₱" +
-                    String.format("%,.2f", ded[0]));
-
-            System.out.println("PhilHealth      : ₱" +
-                    String.format("%,.2f", ded[1]));
-
-            System.out.println("Pag-IBIG        : ₱" +
-                    String.format("%,.2f", ded[2]));
-
-            System.out.println("Tax             : ₱" +
-                    String.format("%,.2f", ded[3]));
-
-            System.out.println("Total Deduction : ₱" +
-                    String.format("%,.2f", totalDeductions));
-
-            System.out.println("Net Salary      : ₱" +
-                    String.format("%,.2f", netSecond));
-
-            System.out.println("==================================================");
+            System.out.println(monthName + " " + yr + " - Cutoff Date: 16 to " + daysInMonth);
+            System.out.println("Total Hours Worked : " + plainDouble(sh));
+            System.out.println("Gross Salary: " + plainDoubleWithGrouping(grossSecond));
+            System.out.println("Deductions: ");
+            System.out.println("  SSS: " + plainDoubleWithGrouping(ded[0]));
+            System.out.println("  PhilHealth: " + plainDoubleWithGrouping(ded[1]));
+            System.out.println("  Pag-IBIG: " + plainDoubleWithGrouping(ded[2]));
+            System.out.println("  Tax: " + plainDoubleWithGrouping(ded[3]));
+            System.out.println("Total Deductions: " + plainDoubleWithGrouping(totalDeductions));
+            System.out.println("Net Salary: " + plainDoubleWithGrouping(netSecond));
         }
     }
 
