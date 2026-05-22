@@ -26,21 +26,85 @@ public class PayrollStaffDashboard extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        automatic = new javax.swing.JScrollPane();
+        employeeTable = new javax.swing.JTable();
+        btnLoadEmployees = new javax.swing.JButton();
+        lblTitle = new javax.swing.JLabel();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        employeeTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Employee ID", "Last Name", "First Name", "Basic Salary"
+            }
+        ));
+        automatic.setViewportView(employeeTable);
+
+        btnLoadEmployees.setText("Load Employees");
+        btnLoadEmployees.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoadEmployeesActionPerformed(evt);
+            }
+        });
+
+        lblTitle.setText("Payroll Staff Dashboard");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 594, Short.MAX_VALUE)
+            .addComponent(automatic, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 594, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(238, 238, 238)
+                        .addComponent(btnLoadEmployees))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(234, 234, 234)
+                        .addComponent(lblTitle)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 346, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(9, 9, 9)
+                .addComponent(automatic, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnLoadEmployees)
+                .addGap(23, 23, 23))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnLoadEmployeesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadEmployeesActionPerformed
+        PayrollCSVReader reader = new PayrollCSVReader();
+        String[][] employees = reader.getEmployees();
+
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) employeeTable.getModel();
+        model.setRowCount(0);
+
+        for (int i = 0; i < employees.length; i++) {
+
+            if (employees[i][0] != null) {
+
+                model.addRow(new Object[] {
+                    employees[i][0],
+                    employees[i][1],
+                    employees[i][2],
+                    employees[i][3]
+                });
+            }
+        }
+    }//GEN-LAST:event_btnLoadEmployeesActionPerformed
 
     /**
      * @param args the command line arguments
@@ -77,6 +141,11 @@ public class PayrollStaffDashboard extends javax.swing.JFrame {
         });
     }
 
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane automatic;
+    private javax.swing.JButton btnLoadEmployees;
+    private javax.swing.JTable employeeTable;
+    private javax.swing.JLabel lblTitle;
     // End of variables declaration//GEN-END:variables
 }

@@ -1,4 +1,3 @@
-
 package payroll;
 
 import java.io.BufferedReader;
@@ -14,7 +13,7 @@ public class PayrollCSVReader {
     
     public String[][] getEmployees() {
 
-        String[][] employees = new String[50][2];
+        String[][] employees = new String[100][4];
 
         try {
 
@@ -34,14 +33,11 @@ public class PayrollCSVReader {
                 // Check if row has enough columns
                 if (data.length > 2) {
 
+                    employees[row][0] = data[0]; // Employee ID
                     employees[row][0] = data[1].trim(); // Last Name
                     employees[row][1] = data[2].trim(); // First Name
-
-                    // Print to terminal please!!!!
-                    System.out.println(
-                            employees[row][0] + ", " +
-                            employees[row][1]);
-
+                    employees[row][3] = data[13]; // Basic Salary
+                   
                     row++;
                 }
             }
@@ -49,7 +45,7 @@ public class PayrollCSVReader {
             br.close();
 
         } catch (IOException e) {
-
+            
             System.out.println("Error reading CSV file.");
             e.printStackTrace();
         }
