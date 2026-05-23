@@ -16,6 +16,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
+//commit 1
+//commit 2
 /**
  * MotorPH payroll — single-file, procedural style (no domain classes).
  * Reads employee and attendance data from CSV only; does not modify those files.
@@ -32,17 +34,25 @@ public class MotorPhPayrollApp {
     private static final int MAX_YEAR_MONTH_PAIRS = 512;
 
     public static void main(String[] args) {
-        // Launch the visual GUI
-        MotorPhGUI loginScreen = new MotorPhGUI();
-        loginScreen.setVisible(true);
-        
-        
-        
+
         String empFile = "resources/MotorPH_Employee Data - Employee Details.csv";
         String attFile = "resources/MotorPH_Employee Data - Attendance Record.csv";
 
+        // Validate files before starting
+        if (!Files.exists(Paths.get(empFile))) {
+            System.out.println("Employee file is missing.");
+            return;
+        }
+
+        if (!Files.exists(Paths.get(attFile))) {
+            System.out.println("Attendance file is missing.");
+            return;
+        }
+
         Scanner sc = new Scanner(System.in);
+
         String role = loginRubric(sc);
+
         if (role == null) {
             return;
         }
@@ -52,6 +62,8 @@ public class MotorPhPayrollApp {
         } else {
             runPayrollStaffSession(empFile, attFile, sc);
         }
+
+        System.out.println("\nProgram terminated.");
     }
 
     /**
@@ -59,43 +71,88 @@ public class MotorPhPayrollApp {
      * one attempt; exact failure message; exit on failure.
      */
     static String loginRubric(Scanner sc) {
-        System.out.print("Username: ");
-        String u = sc.nextLine().trim();
-        System.out.print("Password: ");
-        String p = sc.nextLine().trim();
 
-        if (!RUBRIC_PASSWORD.equals(p)) {
-            System.out.println("Incorrect username and/or password.");
-            return null;
+        final int MAX_ATTEMPTS = 3;
+
+        for (int attempts = 1; attempts <= MAX_ATTEMPTS; attempts++) {
+
+            System.out.print("Username: ");
+            String username = sc.nextLine().trim();
+
+            System.out.print("Password: ");
+            String password = sc.nextLine().trim();
+
+            if (username.isEmpty() || password.isEmpty()) {
+                System.out.println("Username and password cannot be empty.");
+            }
+            else if (username.equals("employee") &&
+                     password.equals(RUBRIC_PASSWORD)) {
+
+                System.out.println("\nLogin successful.");
+                return "employee";
+            }
+            else if (username.equals("payroll_staff") &&
+                     password.equals(RUBRIC_PASSWORD)) {
+
+                System.out.println("\nLogin successful.");
+                return "payroll_staff";
+            }
+            else {
+                System.out.println("Incorrect username and/or password.");
+            }
+
+            int remaining = MAX_ATTEMPTS - attempts;
+
+            if (remaining > 0) {
+                System.out.println("Attempts remaining: " + remaining);
+            }
         }
-        if (u.equalsIgnoreCase("employee")) {
-            return "employee";
-        }
-        if (u.equalsIgnoreCase("payroll_staff")) {
-            return "payroll_staff";
-        }
-        System.out.println("Incorrect username and/or password.");
+
+        System.out.println("Too many failed attempts.");
         return null;
     }
 
     static void runEmployeeSession(String empFile, Scanner sc) {
-        String[] opts = { "Enter your employee number", "Exit the program" };
+
+        String[] opts = {
+            "Enter your employee number",
+            "Exit the program"
+        };
+
         while (true) {
+
             int choice = promptMenu(sc, "Select an option:", opts);
+
             if (choice == 2) {
                 return;
             }
+
             System.out.print("Enter your employee number: ");
             String id = sc.nextLine().trim();
+
+            if (id.isEmpty()) {
+                System.out.println("Employee number cannot be empty.");
+                continue;
+            }
+
             String[] row = new String[5];
+
             if (!findEmployeeRow(empFile, id, row)) {
                 System.out.println("Employee number does not exist.");
                 continue;
             }
+
             System.out.println();
-            System.out.println("Employee # : " + row[0]);
+            System.out.println("=================================");
+            System.out.println("EMPLOYEE INFORMATION");
+            System.out.println("=================================");
+            System.out.println("Employee #    : " + row[0]);
             System.out.println("Employee Name : " + row[1] + ", " + row[2]);
-            System.out.println("Birthday : " + row[3]);
+            System.out.println("Birthday      : " + row[3]);
+            System.out.println("=================================");
+
+            System.out.println("\nPress Enter to continue...");
+            sc.nextLine();
         }
     }
 
@@ -157,23 +214,33 @@ public class MotorPhPayrollApp {
     }
 
     static int promptMenu(Scanner sc, String title, String[] options) {
+
         while (true) {
+
             System.out.println();
+            System.out.println("=================================");
             System.out.println(title);
+            System.out.println("=================================");
+
             for (int i = 0; i < options.length; i++) {
                 System.out.println((i + 1) + ". " + options[i]);
             }
+
             System.out.print("Enter choice: ");
             String line = sc.nextLine().trim();
+            if (line.isEmpty()) {
+                System.out.println("Menu choice cannot be empty.");
+                continue;
+            }
             try {
                 int c = Integer.parseInt(line);
                 if (c >= 1 && c <= options.length) {
                     return c;
                 }
-            } catch (NumberFormatException ignored) {
-                // retry
+                System.out.println("Invalid menu choice.");
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter numbers only.");
             }
-            System.out.println("Invalid choice. Try again.");
         }
     }
 
@@ -305,14 +372,39 @@ public class MotorPhPayrollApp {
         return 200833.33 + (taxable - 666667) * 0.35;
     }
 
-    static void printStaffPayroll(String empNo, String lastName, String firstName, String birthday, double hourlyRate,
-            int attN, String[] attEmp, int[] attY, int[] attM, int[] attD, LocalTime[] attIn, LocalTime[] attOut) {
+    static void printStaffPayroll(
+            String empNo,
+            String lastName,
+            String firstName,
+            String birthday,
+            double hourlyRate,
+            int attN,
+            String[] attEmp,
+            int[] attY,
+            int[] attM,
+            int[] attD,
+            LocalTime[] attIn,
+            LocalTime[] attOut) {
+
         int[] pairYears = new int[MAX_YEAR_MONTH_PAIRS];
         int[] pairMonths = new int[MAX_YEAR_MONTH_PAIRS];
+
         double[] firstHalf = new double[MAX_YEAR_MONTH_PAIRS];
         double[] secondHalf = new double[MAX_YEAR_MONTH_PAIRS];
-        int pairCount = aggregateJuneToDecember(empNo, attN, attEmp, attY, attM, attD, attIn, attOut,
-                pairYears, pairMonths, firstHalf, secondHalf);
+
+        int pairCount = aggregateJuneToDecember(
+                empNo,
+                attN,
+                attEmp,
+                attY,
+                attM,
+                attD,
+                attIn,
+                attOut,
+                pairYears,
+                pairMonths,
+                firstHalf,
+                secondHalf);
 
         if (pairCount == 0) {
             System.out.println();
@@ -431,39 +523,79 @@ public class MotorPhPayrollApp {
         a[j] = t;
     }
 
-    static int loadAttendance(String path, DateTimeFormatter timeFormat,
-            String[] empNos, int[] ys, int[] ms, int[] ds, LocalTime[] ins, LocalTime[] outs) throws IOException {
+    static int loadAttendance(
+            String path,
+            DateTimeFormatter timeFormat,
+            String[] empNos,
+            int[] ys,
+            int[] ms,
+            int[] ds,
+            LocalTime[] ins,
+            LocalTime[] outs) throws IOException {
+
         int i = 0;
+        int skippedRows = 0;
+
         try (Reader reader = Files.newBufferedReader(Paths.get(path));
-             CSVParser csv = CSVParser.parse(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+             CSVParser csv = CSVParser.parse(
+                     reader,
+                     CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+
             for (CSVRecord rec : csv) {
+
                 if (rec.size() < 6 || i >= MAX_ATTENDANCE_ROWS) {
+                    skippedRows++;
                     continue;
                 }
+
                 String id = rec.get(0).trim();
                 String dateStr = rec.get(3).trim();
+
                 try {
+
                     String[] dparts = dateStr.split("/");
+
                     int mon = Integer.parseInt(dparts[0]);
                     int d = Integer.parseInt(dparts[1]);
                     int yr = Integer.parseInt(dparts[2]);
-                    LocalTime in = parseTimeSafe(rec.get(4).trim(), timeFormat);
-                    LocalTime out = parseTimeSafe(rec.get(5).trim(), timeFormat);
+
+                    LocalTime in =
+                            parseTimeSafe(rec.get(4).trim(), timeFormat);
+
+                    LocalTime out =
+                            parseTimeSafe(rec.get(5).trim(), timeFormat);
+
                     if (in == null || out == null) {
+                        skippedRows++;
                         continue;
                     }
+
                     empNos[i] = id;
                     ys[i] = yr;
                     ms[i] = mon;
                     ds[i] = d;
                     ins[i] = in;
                     outs[i] = out;
+
                     i++;
-                } catch (Exception ignored) {
-                    // skip malformed row
+
+                } catch (Exception e) {
+                    skippedRows++;
                 }
             }
         }
+
+        System.out.println("Attendance records loaded: " + i);
+
+        if (skippedRows > 0) {
+            System.out.println("Skipped malformed rows: " + skippedRows);
+        }
+
+        if (i >= MAX_ATTENDANCE_ROWS) {
+            System.out.println(
+                    "Warning: Maximum attendance limit reached.");
+        }
+
         return i;
     }
 
